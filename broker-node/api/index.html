@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>MQTT Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+  <header>📡 MQTT Dashboard</header>
+
+  <div class="status" id="status">🔴 Desconectado</div>
+
+  <div id="messages"></div>
+</div>
+
+<script>
+  const client = mqtt.connect("ws://localhost:9001");
+
+  const statusEl = document.getElementById("status");
+  const messagesEl = document.getElementById("messages");
+
+  client.on("connect", () => {
+    statusEl.innerHTML = "🟢 Conectado";
+    statusEl.className = "status online";
+
+    client.subscribe("projeto/sensor");
+  });
+
+  client.on("reconnect", () => {
+    statusEl.innerHTML = "🟡 Reconectando...";
+    statusEl.className = "status";
+  });
+
+  client.on("offline", () => {
+    statusEl.innerHTML = "🔴 Offline";
+    statusEl.className = "status offline";
+  });
+
+  client.on("message", (topic, message) => {
+    const div = document.createElement("div");
+    div.className = "msg";
+
+    div.innerHTML = `
+      <div class="topic">${topic}</div>
+      <div>${message.toString()}</div>
+    `;
+
+    messagesEl.prepend(div);
+  });
+</script>
+
+</body>
+</html>

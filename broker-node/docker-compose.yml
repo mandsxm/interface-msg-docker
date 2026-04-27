@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto_broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+    networks:
+      - mqtt_net
+
+  api-node:
+    build: ./api
+    container_name: node_mqtt_api
+    depends_on:
+      - mosquitto
+    networks:
+      - mqtt_net
+
+networks:
+  mqtt_net:
+    driver: bridge
